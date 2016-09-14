@@ -1,0 +1,117 @@
+*X75Boids* - Boids based chaotic oscillator
+
+#+EMAIL: opt [xxx] sdfk.de
+
+\#x,y = X75Boids.ar(in, numboids, diss, f1, f2, f3, mul, add)
+ - *in*: input, not used. potentially drive the system
+ - *numboids*: init time argument: number of agents in the
+   system, default 2, max: 20 but that can be adjusted in the
+   source depending on resources
+ - *diss*: dissipative term for stabilisation, 0 <= diss <= 1,
+   default 0.99
+ - *f1*: strength of rule1 force: clumping, default: 0.002
+ - *f2*: strength of rule2 force: avoidance, default: 0.002
+ - *f3*: strength of rule3 force: alignment, default: 0.005
+
+Implements a rule based iterative boid system, see Craig
+Reynolds: http://www.red3d.com/cwr/boids/. While working on a
+graphical version of it the audio solution eventually occured to
+me.
+
+#+BEGIN_EXAMPLE
+// prepare
+s.boot;
+SCJConnection.connect([1, 2], [1, 2], "SuperCollider:out_", "baudline:in_");
+#+END_EXAMPLE
+
+Run a few variants:
+
+#+BEGIN_EXAMPLE
+{X75Boids.ar(numboids: 2, diss: 0.995, f1: 0.002)}.play;
+
+{X75Boids.ar(numboids: 13, diss: 0.9)}.play; // my maximum
+
+{LeakDC.ar(X75Boids.ar(numboids: 5, diss: 0.9955))}.play;
+
+{LeakDC.ar(X75Boids.ar(numboids: 5, diss: Line.kr(0, 0.995, 10)))}.play;
+
+{LeakDC.ar(X75Boids.ar(numboids: 11, diss: 0.91))}.play;
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+// some more tests
+{LeakDC.ar(X75Boids.ar(numboids: 11, diss: 0.90, f1: 0.002))}.play; // doesnt work anymore
+
+{LeakDC.ar(X75Boids.ar(numboids: 10, diss: 0.996, f1: 0.002))}.play;
+
+{LeakDC.ar(X75Boids.ar(numboids: 3, diss: 0.99))}.play;
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+// make synthdef to test parameter setting on the fly
+(
+SynthDef(\boids, {|numboids = 2, diss = 0.9, f1 = 0.002, f2 = 0.002, f3 = 0.005|
+	var boids;
+	boids = X75Boids.ar(numboids: numboids, diss: diss, f1: f1, f2: f2, f3: f3);
+	Out.ar(0, boids);
+}).store;
+)
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+// small swarm
+x = Synth(\boids, [\numboids, 2, \diss, 0.9945]);
+x.set(\f1, 0.0015);
+x.set(\diss, 0.99);
+x.set(\diss, 0.91);
+
+// larger swarm
+x = Synth(\boids, [\numboids, 10, \diss, 0.9945]);
+x.set(\f1, 0.074);
+x.set(\diss, 0.99);
+
+// more params
+x = Synth(\boids, [\numboids, 10, \diss, 0.9945]);
+x.set(\diss, 0.95);
+x.set(\f1, 0.008);
+x.set(\f2, 0.008);
+x.set(\f3, 0.15);
+
+// more params
+x = Synth(\boids, [\numboids, 6, \diss, 0.99]);
+x.set(\diss, 0.95);
+x.set(\f1, 0.001);
+x.set(\f2, 0.2);
+x.set(\f3, 0.15);
+#+END_EXAMPLE
+
+Plotting the output
+
+#+BEGIN_EXAMPLE
+// create buffer
+b = Buffer.alloc(s, 2000, 2); // a four second 1 channel Buffer
+// record output
+(
+b.zero;
+{
+	var recbuf;
+	// test: numboids: 1,2,3,..., diss: 1.0, 0.995, 0.992, 0.99, ...
+	#x, y = X75Boids.kr(numboids: 3, diss: 0.99);
+	Poll.kr(Impulse.kr(10), x, "x");
+	Poll.kr(Impulse.kr(10), y, "y");
+	recbuf = RecordBuf.kr([x,y], b.bufnum, loop: 0, doneAction: 2);
+	FreeSelfWhenDone.kr(recbuf); // doesn't seem to work
+}.play;
+)
+// so stop synth manually here
+
+h = GNUPlot.new;
+b.loadToFloatArray(action: {|array| {h.plot(array.unlace(2), 2);}.defer; "done".postln;});
+//b.getn(0, b.numFrames, {|msg| h.plot(msg.unlace(2), 2)}); // getn has 1633 values limit because of UDP packet size
+h.stop;
+
+b.plot // alternatively use GUI plot
+
+b.close;
+#+END_EXAMPLE
+
