@@ -2,10 +2,9 @@ class:: X75Boids
 summary:: Boids based chaotic oscillator
 categories:: UGens>Generators>Chaotic
 
-Implements a rule based iterative boid system, see Craig
-Reynolds: http://www.red3d.com/cwr/boids/. While working on a
-graphical version of it the audio solution eventually occured to
-me.
+Boids is a general algorithm for simulating a flock of birds. See Craig Reynolds: http://www.red3d.com/cwr/boids/.
+
+The audio output is created by taking the average of the X and Y coordinates of the boids for the left and right channels respectively.
 
 Originally by Oswald Berthold, updated 2016 by Nathan Ho.
 
@@ -13,11 +12,13 @@ classmethods::
 
 method:: ar
 
+Stereo output.
+
 argument:: in
 Input, not used. Potentially drive the system.
 
 argument:: numboids
-Number of agents in the system, up to 20. Non-modulatable. If you need more than 20, hack the source.
+Non-modulatable number of boids, up to 20. The effect on the CPU is pretty steep, so be careful. If you need more than 20, hack the source.
 
 argument:: diss
 dissipative term for stabilisation, 0 to 1.
