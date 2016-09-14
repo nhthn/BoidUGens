@@ -296,7 +296,7 @@ void X75Boids_Dtor(X75Boids* unit)
 // the load function is called by the host when the plug-in is loaded
 PluginLoad(SWUGens) {
   ft = inTable;
-  DefineSimpleUnit(X75Boids);
+  DefineDtorUnit(X75Boids);
 }
 
 ////////////////////////////////////////////////////////////////////
