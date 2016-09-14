@@ -63,11 +63,8 @@ double vec_norm(struct vec *v1) {
   return sqrt(pow(v1->x,2) + pow(v1->y, 2) + pow(v1->z, 2));
 }
 
-// declare struct to hold unit generator state
 struct X75Boids : public Unit
 {
-  //double mPhase; // phase of the oscillator, from -1 to 1.
-  //float mFreqMul; // a constant for multiplying frequency
   int numboids;
   double nbadj; // adjust amplitude to numboids
   double nbm1adj; // adjust amplitude to numboids-1
@@ -77,12 +74,10 @@ struct X75Boids : public Unit
   double f1, f2, f3; // force factor for rule1-3
 };
 
-// declare unit generator functions 
 extern "C"
 {
   void load(InterfaceTable *inTable);
   void X75Boids_next_a(X75Boids *unit, int inNumSamples);
-  void X75Boids_next_k(X75Boids *unit, int inNumSamples);
   void X75Boids_Ctor(X75Boids* unit);
   void X75Boids_Dtor(X75Boids* unit);
   void X75Boids_rule1(X75Boids* unit, int bid);
@@ -92,32 +87,12 @@ extern "C"
   void X75Boids_rule5(X75Boids* unit, int bid);
 };
 
-//////////////////////////////////////////////////////////////////
-
-// Ctor is called to initialize the unit generator. 
-// It only executes once.
-
-// A Ctor usually does 3 things.
-// 1. set the calculation function.
-// 2. initialize the unit generator state variables.
-// 3. calculate one sample of output.
 void X75Boids_Ctor(X75Boids* unit)
 {
   int i;
-  // 1. set the calculation function.
-//   if (INRATE(0) == calc_FullRate) {
-//     // if the frequency argument is audio rate
-//     printf("rate (audio): %d\n", INRATE(0));
-//     SETCALC(X75Boids_next_a);
-//   } else {
-//     // if the frequency argument is control rate (or a scalar).
-//     printf("rate (control): %d\n", INRATE(0));
-//     SETCALC(X75Boids_next_k);
-//   }
+
   SETCALC(X75Boids_next_a);
-  // the block above doesn't seem to work
-  // 2. initialize the unit generator state variables.
-  // initialize a constant for multiplying the frequency
+
   unit->numboids = IN0(1);
   if((unit->numboids) >= MAX_BOIDS) {
     unit->numboids = MAX_BOIDS;
@@ -135,33 +110,30 @@ void X75Boids_Ctor(X75Boids* unit)
     // init position
     unit->boidpos[i] = (struct vec *)
       RTAlloc(unit->mWorld, sizeof(struct vec)); // randomize
-    unit->boidpos[i]->x = 0.2 * (double)(rand())/RAND_MAX - 0.1;
-    unit->boidpos[i]->y = 0.2 * (double)(rand())/RAND_MAX - 0.1;
-    unit->boidpos[i]->z = 0.2 * (double)(rand())/RAND_MAX - 0.1;
+      unit->boidpos[i]->x = 0.2 * (double)(rand())/RAND_MAX - 0.1;
+      unit->boidpos[i]->y = 0.2 * (double)(rand())/RAND_MAX - 0.1;
+      unit->boidpos[i]->z = 0.2 * (double)(rand())/RAND_MAX - 0.1;
     // init velocity
-    unit->boidvel[i] = (struct vec *)RTAlloc(unit->mWorld,
+      unit->boidvel[i] = (struct vec *)RTAlloc(unit->mWorld,
 					     sizeof(struct vec)); // randomize
-    unit->boidvel[i]->x = 0.01 * (double)(rand())/RAND_MAX - 0.005;
-    unit->boidvel[i]->y = 0.01 * (double)(rand())/RAND_MAX - 0.005;
-    unit->boidvel[i]->z = 0.01 * (double)(rand())/RAND_MAX - 0.005;
+      unit->boidvel[i]->x = 0.01 * (double)(rand())/RAND_MAX - 0.005;
+      unit->boidvel[i]->y = 0.01 * (double)(rand())/RAND_MAX - 0.005;
+      unit->boidvel[i]->z = 0.01 * (double)(rand())/RAND_MAX - 0.005;
     //printf("X75Boids_Ctor boid init: %f %f %f\n", unit->boids[i]->x,
     //   unit->boids[i]->y, unit->boids[i]->z);
+    }
+
+    X75Boids_next_a(unit, 1);
   }
-  // 3. calculate one sample of output.
-  X75Boids_next_a(unit, 1);
-}
 
 //////////////////////////////////////////////////////////////////
 
-// The calculation function executes once per control period 
-// which is typically 64 samples.
-
 // calculation function for an audio rate frequency argument
-void X75Boids_next_a(X75Boids *unit, int inNumSamples)
-{
+  void X75Boids_next_a(X75Boids *unit, int inNumSamples)
+  {
   // get the pointer to the output buffers
-  float *xout = OUT(0);
-  float *yout = OUT(1);
+    float *xout = OUT(0);
+    float *yout = OUT(1);
   // get the pointer to the input buffer
   float *in = IN(0); // use for excitation
   double diss = unit->diss = IN0(2);
@@ -182,9 +154,9 @@ void X75Boids_next_a(X75Boids *unit, int inNumSamples)
 //     unit->f3 = f3;
 
   for (int i=0; i < inNumSamples; ++i) // loop block
-    {
-      x = 0.0;
-      y = 0.0;
+  {
+    x = 0.0;
+    y = 0.0;
       //z = 0.0;
       for(int j=0;j<unit->numboids;j++) { // loop boids
 // 	printf("X75Boids_next_a pos: %f %f %f\n",
@@ -193,7 +165,7 @@ void X75Boids_next_a(X75Boids *unit, int inNumSamples)
 // 	printf("X75Boids_next_a vel: %f %f %f\n",
 // 	       unit->boidvel[j]->x, unit->boidvel[j]->y,
 // 	       unit->boidvel[j]->z);
-	if(unit->numboids > 1) {
+       if(unit->numboids > 1) {
 	  X75Boids_rule1(unit, j); // clumping
 	  X75Boids_rule2(unit, j); // avoidance
 	  X75Boids_rule3(unit, j); // schooling
@@ -204,7 +176,7 @@ void X75Boids_next_a(X75Boids *unit, int inNumSamples)
 	vec_add(unit->boidpos[j], unit->boidvel[j]);
 	x += unit->boidpos[j]->x;
 	y += unit->boidpos[j]->y;
-      }
+}
       //printf("X75Boids_next_a out x: %f, y: %f\n", x, y);
       // write the output
 //       xout[i] = unit->boidpos[0]->x;
@@ -212,14 +184,14 @@ void X75Boids_next_a(X75Boids *unit, int inNumSamples)
       xout[i] = x * unit->nbadj; /// unit->numboids;
       yout[i] = y * unit->nbadj; //unit->numboids;
     }
-}
+  }
 
 // clumping
-void X75Boids_rule1(X75Boids *unit, int bid)
-{
-  struct vec v = {0, 0, 0};
-  double f1 = unit->f1;
-  for(int i;i<unit->numboids;i++){
+  void X75Boids_rule1(X75Boids *unit, int bid)
+  {
+    struct vec v = {0, 0, 0};
+    double f1 = unit->f1;
+    for(int i;i<unit->numboids;i++){
     if(i!=bid) { // not self
       vec_add(&v, unit->boidpos[i]);
     }
@@ -246,12 +218,12 @@ void X75Boids_rule2(X75Boids *unit, int bid)
       vec_sub(&p, unit->boidpos[i]);
       d = vec_norm(&p);
       if (d < 0.3)
-	vec_add(&v, &p);
-    }
-  }
+       vec_add(&v, &p);
+   }
+ }
   //vec_div_scalar(&v, 500.0);
-  vec_mul_scalar(&v, f2);
-  vec_add(unit->boidvel[bid], &v);
+ vec_mul_scalar(&v, f2);
+ vec_add(unit->boidvel[bid], &v);
 }
 
 // schooling
@@ -302,41 +274,6 @@ void X75Boids_rule5(X75Boids *unit, int bid)
   double d = vec_norm(unit->boidvel[bid]);
   if(d > vlim)
     vec_div_scalar(unit->boidvel[bid], d);
-}
-
-//////////////////////////////////////////////////////////////////
-
-// calculation function for a control rate frequency argument
-void X75Boids_next_k(X75Boids *unit, int inNumSamples)
-{
-  // get the pointer to the output buffer
-  float *xout = ZOUT(0);
-  float *yout = ZOUT(1);
-  // freq is control rate, so calculate it once.
-  //float freq = IN0(0) * unit->mFreqMul;
-  // get phase from struct and store it in a local variable.
-  // The optimizer will cause it to be loaded it into a register.
-  //double phase = unit->mPhase;
-  // since the frequency is not changing then we can simplify the loops 
-  // by separating the cases of positive or negative frequencies. 
-  // This will make them run faster because there is less code inside the loop.
-  float x;
-  float y;
-  //int i;
-  for (int i=0; i < inNumSamples; ++i)
-    {
-      x = 0.0;
-      y = 0.0;
-      for(int j=0;j<unit->numboids;j++) {
-	x += unit->boidpos[j]->x;
-	y += unit->boidpos[j]->y;
-      }
-      // write the output
-      xout[i] = x;
-      yout[i] = y;
-    }
-  // store the phase back to the struct
-  //unit->mPhase = phase;
 }
 
 //////////////////////////////////////////////////
