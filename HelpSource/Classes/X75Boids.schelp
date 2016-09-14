@@ -8,6 +8,8 @@ The audio output is created by taking the average of the X and Y coordinates of 
 
 Originally by Oswald Berthold, updated 2016 by Nathan Ho.
 
+warning:: This oscillator can easily shoot beyond ±1. Use proper safety measures. ::
+
 classmethods::
 
 method:: ar
@@ -18,7 +20,7 @@ argument:: in
 Input, not used. Potentially drive the system.
 
 argument:: numboids
-Non-modulatable number of boids, up to 20. The effect on the CPU is pretty steep, so be careful. If you need more than 20, hack the source.
+Non-modulatable number of boids, up to 20. The marginal CPU cost of each boid is pretty steep, so be careful. If you need more than 20, hack the source.
 
 argument:: diss
 dissipative term for stabilisation, 0 to 1.
