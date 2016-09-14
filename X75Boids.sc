@@ -13,5 +13,4 @@ X75Boids : MultiOutUGen {
 	*kr { arg in=0, numboids = 2, diss = 0.99, f1 = 0.002, f2 = 0.002, f3 = 0.005, mul = 1.0, add = 0.0;
 		^this.multiNew('control', in, numboids, diss, f1, f2, f3).madd(mul, add)
 	}
-	*categories {	^ #["UGens>Generators>Chaotic"]	}
 }

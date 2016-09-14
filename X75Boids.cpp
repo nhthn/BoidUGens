@@ -357,8 +357,7 @@ void X75Boids_Dtor(X75Boids* unit)
 ////////////////////////////////////////////////////////////////////
 
 // the load function is called by the host when the plug-in is loaded
-void load(InterfaceTable *inTable)
-{
+PluginLoad(SWUGens) {
   ft = inTable;
   DefineSimpleUnit(X75Boids);
 }
