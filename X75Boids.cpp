@@ -102,20 +102,22 @@ void X75Boids_Ctor(X75Boids* unit) {
     unit->nbadj = 1.0/unit->numboids;
     unit->nbm1adj = 1.0/(unit->numboids-1);
 
-    for(int i = 0; i < unit->numboids; i++) {
+    RGen& rgen = *unit->mParent->mRGen;
+
+    for (int i = 0; i < unit->numboids; i++) {
         // init position
         unit->boidpos[i] = (struct vec *)RTAlloc(unit->mWorld, sizeof(struct vec));
 
         // randomize
-        unit->boidpos[i]->x = 0.2 * (double)(rand())/RAND_MAX - 0.1;
-        unit->boidpos[i]->y = 0.2 * (double)(rand())/RAND_MAX - 0.1;
-        unit->boidpos[i]->z = 0.2 * (double)(rand())/RAND_MAX - 0.1;
+        unit->boidpos[i]->x = 0.2 * rgen.drand() - 0.1;
+        unit->boidpos[i]->y = 0.2 * rgen.drand() - 0.1;
+        unit->boidpos[i]->z = 0.2 * rgen.drand() - 0.1;
 
         // init velocity
         unit->boidvel[i] = (struct vec *)RTAlloc(unit->mWorld, sizeof(struct vec)); // randomize
-        unit->boidvel[i]->x = 0.01 * (double)(rand())/RAND_MAX - 0.005;
-        unit->boidvel[i]->y = 0.01 * (double)(rand())/RAND_MAX - 0.005;
-        unit->boidvel[i]->z = 0.01 * (double)(rand())/RAND_MAX - 0.005;
+        unit->boidvel[i]->x = 0.01 * rgen.drand() - 0.005;
+        unit->boidvel[i]->y = 0.01 * rgen.drand() - 0.005;
+        unit->boidvel[i]->z = 0.01 * rgen.drand() - 0.005;
     }
 
     X75Boids_next(unit, 1);
