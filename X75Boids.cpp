@@ -145,7 +145,7 @@ void X75Boids_next(X75Boids* unit, int inNumSamples) {
     for (int i = 0; i < inNumSamples; i++) {
         x = 0.0;
         y = 0.0;
-        for(int j=0;j<unit->numboids;j++) {
+        for(int j = 0; j < unit->numboids; j++) {
             if(unit->numboids > 1) {
                 X75Boids_rule1(unit, j); // clumping
                 X75Boids_rule2(unit, j); // avoidance
