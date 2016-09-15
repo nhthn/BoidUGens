@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8)
-set(PROJECT "SWUGens")
+set(PROJECT "BoidUGens")
 project (${PROJECT})
 
 include_directories(${SC_PATH}/include/plugin_interface)

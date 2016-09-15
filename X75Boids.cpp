@@ -250,7 +250,7 @@ void X75Boids_Dtor(X75Boids* unit) {
     }
 }
 
-PluginLoad(SWUGens) {
+PluginLoad(BoidUGens) {
     ft = inTable;
     DefineDtorUnit(X75Boids);
 }
