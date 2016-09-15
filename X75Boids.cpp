@@ -69,8 +69,8 @@ double vec_norm(struct vec *v1) {
 
 struct X75Boids : public Unit {
     int numboids;
-    double nbadj; // adjust amplitude to numboids
-    double nbm1adj; // adjust amplitude to numboids-1
+    double numboids_reciprocal; // adjust amplitude to numboids
+    double numboids_minus_1_reciprocal; // adjust amplitude to numboids-1
     struct vec *boidpos[MAX_BOIDS]; // boid container
     struct vec *boidvel[MAX_BOIDS]; // boid container
     double diss;  // dissipative term
@@ -99,8 +99,8 @@ void X75Boids_Ctor(X75Boids* unit) {
     unit->f1 = IN0(3);
     unit->f2 = IN0(4);
     unit->f3 = IN0(5);
-    unit->nbadj = 1.0/unit->numboids;
-    unit->nbm1adj = 1.0/(unit->numboids-1);
+    unit->numboids_reciprocal = 1.0/unit->numboids;
+    unit->numboids_minus_1_reciprocal = 1.0/(unit->numboids-1);
 
     RGen& rgen = *unit->mParent->mRGen;
 
@@ -152,8 +152,8 @@ void X75Boids_next(X75Boids *unit, int inNumSamples) {
             x += unit->boidpos[j]->x;
             y += unit->boidpos[j]->y;
         }
-        xout[i] = x * unit->nbadj;
-        yout[i] = y * unit->nbadj;
+        xout[i] = x * unit->numboids_reciprocal;
+        yout[i] = y * unit->numboids_reciprocal;
     }
 }
 
@@ -166,7 +166,7 @@ void X75Boids_rule1(X75Boids *unit, int bid) {
             vec_add(&v, unit->boidpos[i]);
         }
     }
-    vec_mul_scalar(&v, unit->nbm1adj);
+    vec_mul_scalar(&v, unit->numboids_minus_1_reciprocal);
     vec_sub(&v, unit->boidpos[bid]);
     vec_mul_scalar(&v, f1);
     vec_add(unit->boidvel[bid], &v);
