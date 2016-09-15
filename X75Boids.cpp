@@ -92,21 +92,21 @@ void X75Boids_Ctor(X75Boids* unit) {
     SETCALC(X75Boids_next);
 
     unit->numboids = IN0(1);
-    if((unit->numboids) >= MAX_BOIDS) {
+    if(unit->numboids >= MAX_BOIDS) {
         unit->numboids = MAX_BOIDS;
     }
     unit->diss = IN0(2);
     unit->f1 = IN0(3);
     unit->f2 = IN0(4);
     unit->f3 = IN0(5);
-    unit->numboids_reciprocal = 1.0/unit->numboids;
-    unit->numboids_minus_1_reciprocal = 1.0/(unit->numboids-1);
+    unit->numboids_reciprocal = 1.0 / unit->numboids;
+    unit->numboids_minus_1_reciprocal = 1.0 / (unit->numboids - 1);
 
     RGen& rgen = *unit->mParent->mRGen;
 
     for (int i = 0; i < unit->numboids; i++) {
         // init position
-        unit->boidpos[i] = (struct vec *)RTAlloc(unit->mWorld, sizeof(struct vec));
+        unit->boidpos[i] = (struct vec*)RTAlloc(unit->mWorld, sizeof(struct vec));
 
         // randomize
         unit->boidpos[i]->x = 0.2 * rgen.drand() - 0.1;
@@ -114,7 +114,7 @@ void X75Boids_Ctor(X75Boids* unit) {
         unit->boidpos[i]->z = 0.2 * rgen.drand() - 0.1;
 
         // init velocity
-        unit->boidvel[i] = (struct vec *)RTAlloc(unit->mWorld, sizeof(struct vec)); // randomize
+        unit->boidvel[i] = (struct vec*)RTAlloc(unit->mWorld, sizeof(struct vec)); // randomize
         unit->boidvel[i]->x = 0.01 * rgen.drand() - 0.005;
         unit->boidvel[i]->y = 0.01 * rgen.drand() - 0.005;
         unit->boidvel[i]->z = 0.01 * rgen.drand() - 0.005;
@@ -123,7 +123,7 @@ void X75Boids_Ctor(X75Boids* unit) {
     X75Boids_next(unit, 1);
 }
 
-void X75Boids_next(X75Boids *unit, int inNumSamples) {
+void X75Boids_next(X75Boids* unit, int inNumSamples) {
     // get the pointer to the output buffers
     float *xout = OUT(0);
     float *yout = OUT(1);
@@ -158,7 +158,7 @@ void X75Boids_next(X75Boids *unit, int inNumSamples) {
 }
 
 // clumping
-void X75Boids_rule1(X75Boids *unit, int bid) {
+void X75Boids_rule1(X75Boids* unit, int bid) {
     struct vec v = {0, 0, 0};
     double f1 = unit->f1;
     for (int i; i < unit->numboids; i++) {
@@ -173,7 +173,7 @@ void X75Boids_rule1(X75Boids *unit, int bid) {
 }
 
 // avoidance
-void X75Boids_rule2(X75Boids *unit, int bid) {
+void X75Boids_rule2(X75Boids* unit, int bid) {
     struct vec v = {0, 0, 0};
     struct vec p;
     double d = 0.0;
@@ -193,7 +193,7 @@ void X75Boids_rule2(X75Boids *unit, int bid) {
 }
 
 // schooling
-void X75Boids_rule3(X75Boids *unit, int bid) {
+void X75Boids_rule3(X75Boids* unit, int bid) {
     struct vec v = {0, 0, 0};
     double f3 = unit->f3;
     for(int i; i < unit->numboids; i++){
@@ -201,14 +201,13 @@ void X75Boids_rule3(X75Boids *unit, int bid) {
             vec_add(&v, unit->boidvel[i]);
         }
     }
-    vec_div_scalar(&v, unit->numboids - 1);
-    //vec_div_scalar(&v, 200.0);
+    vec_mul_scalar(&v, unit->numboids_minus_1_reciprocal);
     vec_mul_scalar(&v, f3);
     vec_add(unit->boidvel[bid], &v);
 }
 
 // bound region
-void X75Boids_rule4(X75Boids *unit, int bid) {
+void X75Boids_rule4(X75Boids* unit, int bid) {
     float xmin = -0.5;
     float xmax = 0.5;
     float ymin = -0.5;
@@ -235,11 +234,11 @@ void X75Boids_rule4(X75Boids *unit, int bid) {
 }
 
 // speed limit
-void X75Boids_rule5(X75Boids *unit, int bid) {
+void X75Boids_rule5(X75Boids* unit, int bid) {
     double vlim = 0.2;
     double d = vec_squared_norm(unit->boidvel[bid]);
     if (d > vlim * vlim) {
-        vec_div_scalar(unit->boidvel[bid], d);
+        vec_mul_scalar(unit->boidvel[bid], pow(d, -0.5));
     }
 }
 
