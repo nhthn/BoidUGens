@@ -59,6 +59,10 @@ void vec_div_scalar(struct vec *v1, double scalar) {
   v1->z *= scalar;
 }
 
+double vec_squared_norm(struct vec *v1) {
+  return v1->x * v1->x + v1->y * v1->y + v1->z * v1->z;
+}
+
 double vec_norm(struct vec *v1) {
   return sqrt(pow(v1->x,2) + pow(v1->y, 2) + pow(v1->z, 2));
 }
@@ -77,7 +81,7 @@ struct X75Boids : public Unit
 extern "C"
 {
   void load(InterfaceTable *inTable);
-  void X75Boids_next_a(X75Boids *unit, int inNumSamples);
+  void X75Boids_next(X75Boids *unit, int inNumSamples);
   void X75Boids_Ctor(X75Boids* unit);
   void X75Boids_Dtor(X75Boids* unit);
   void X75Boids_rule1(X75Boids* unit, int bid);
@@ -91,7 +95,7 @@ void X75Boids_Ctor(X75Boids* unit)
 {
   int i;
 
-  SETCALC(X75Boids_next_a);
+  SETCALC(X75Boids_next);
 
   unit->numboids = IN0(1);
   if((unit->numboids) >= MAX_BOIDS) {
@@ -123,13 +127,12 @@ void X75Boids_Ctor(X75Boids* unit)
     //   unit->boids[i]->y, unit->boids[i]->z);
     }
 
-    X75Boids_next_a(unit, 1);
+    X75Boids_next(unit, 1);
   }
 
 //////////////////////////////////////////////////////////////////
 
-// calculation function for an audio rate frequency argument
-  void X75Boids_next_a(X75Boids *unit, int inNumSamples)
+  void X75Boids_next(X75Boids *unit, int inNumSamples)
   {
   // get the pointer to the output buffers
     float *xout = OUT(0);
@@ -159,10 +162,10 @@ void X75Boids_Ctor(X75Boids* unit)
     y = 0.0;
       //z = 0.0;
       for(int j=0;j<unit->numboids;j++) { // loop boids
-// 	printf("X75Boids_next_a pos: %f %f %f\n",
+// 	printf("X75Boids_next pos: %f %f %f\n",
 // 	       unit->boidpos[j]->x, unit->boidpos[j]->y,
 // 	       unit->boidpos[j]->z);
-// 	printf("X75Boids_next_a vel: %f %f %f\n",
+// 	printf("X75Boids_next vel: %f %f %f\n",
 // 	       unit->boidvel[j]->x, unit->boidvel[j]->y,
 // 	       unit->boidvel[j]->z);
        if(unit->numboids > 1) {
@@ -177,7 +180,7 @@ void X75Boids_Ctor(X75Boids* unit)
 	x += unit->boidpos[j]->x;
 	y += unit->boidpos[j]->y;
 }
-      //printf("X75Boids_next_a out x: %f, y: %f\n", x, y);
+      //printf("X75Boids_next out x: %f, y: %f\n", x, y);
       // write the output
 //       xout[i] = unit->boidpos[0]->x;
 //       yout[i] = unit->boidpos[0]->y;
@@ -216,8 +219,8 @@ void X75Boids_rule2(X75Boids *unit, int bid)
     if(i!=bid) { // not self
       p = *(unit->boidpos[bid]);
       vec_sub(&p, unit->boidpos[i]);
-      d = vec_norm(&p);
-      if (d < 0.3)
+      d = vec_squared_norm(&p);
+      if (d < 0.3 * 0.3)
        vec_add(&v, &p);
    }
  }
@@ -271,8 +274,8 @@ void X75Boids_rule4(X75Boids *unit, int bid)
 void X75Boids_rule5(X75Boids *unit, int bid)
 {
   double vlim = 0.2;
-  double d = vec_norm(unit->boidvel[bid]);
-  if(d > vlim)
+  double d = vec_squared_norm(unit->boidvel[bid]);
+  if(d > vlim * vlim)
     vec_div_scalar(unit->boidvel[bid], d);
 }
 

@@ -17,7 +17,7 @@ method:: ar
 Stereo output.
 
 argument:: in
-Input, not used. Potentially drive the system.
+Not used currently, reserved for excitation signals.
 
 argument:: numboids
 Non-modulatable number of boids, up to 20. The marginal CPU cost of each boid is pretty steep, so be careful. If you need more than 20, hack the source.
