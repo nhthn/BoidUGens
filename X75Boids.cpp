@@ -67,6 +67,12 @@ double vec_norm(struct vec *v1) {
     return sqrt(pow(v1->x, 2) + pow(v1->y, 2) + pow(v1->z, 2));
 }
 
+void vec_mul_scalar_add_vector(struct vec *v1, double scalar, struct vec* v2) {
+    v1->x = v1->x * scalar + v2->x;
+    v1->y = v1->y * scalar + v2->y;
+    v1->z = v1->z * scalar + v2->z;
+}
+
 struct X75Boids : public Unit {
     int numboids;
     double numboids_reciprocal; // adjust amplitude to numboids
@@ -196,8 +202,8 @@ void X75Boids_rule2(X75Boids* unit, int bid) {
 void X75Boids_rule3(X75Boids* unit, int bid) {
     struct vec v = {0, 0, 0};
     double f3 = unit->f3;
-    for(int i; i < unit->numboids; i++){
-        if(i!=bid) { // not self
+    for (int i; i < unit->numboids; i++) {
+        if (i != bid) { // not self
             vec_add(&v, unit->boidvel[i]);
         }
     }
