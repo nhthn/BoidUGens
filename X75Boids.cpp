@@ -201,8 +201,7 @@ void X75Boids_rule3(X75Boids* unit, int bid) {
             vec_add(&v, unit->boidvel[i]);
         }
     }
-    vec_mul_scalar(&v, unit->numboids_minus_1_reciprocal);
-    vec_mul_scalar(&v, f3);
+    vec_mul_scalar(&v, unit->numboids_minus_1_reciprocal * f3);
     vec_add(unit->boidvel[bid], &v);
 }
 
